@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-06-07T19:25:38.865Z",
+  "timestamp": "2025-06-07T19:33:22.238Z",
   "users": [
     {
       "id": "4fc418c4-1ade-4e9b-a7df-67457c8fb96a",
@@ -54,11 +54,21 @@
       "firstName": "User9",
       "lastName": "Last9",
       "email": "user9@example.com"
+    },
+    {
+      "id": "88619348-dbd9-4334-9290-241a7f17dd31",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "demo@example.org"
     }
   ],
   "metadata": {
-    "totalUsers": 9,
-    "fetchedAt": "6/7/2025, 3:25:38 PM",
-    "apiEndpoint": "https://challenge.sunvoy.com/api/users"
+    "totalUsers": 10,
+    "fetchedAt": "6/7/2025, 3:33:22 PM",
+    "apiEndpoints": [
+      "https://challenge.sunvoy.com/api/users",
+      "https://api.challenge.sunvoy.com/api/settings",
+      "https://challenge.sunvoy.com/settings/tokens"
+    ]
   }
 }
