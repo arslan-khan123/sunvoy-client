@@ -1,5 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const fs = require("fs").promises;
 
 // Get fresh nonce and cookies
 async function getFreshNounceAndCookies() {
@@ -13,10 +14,10 @@ async function getFreshNounceAndCookies() {
 
     if (!nonce) throw new Error("Could not extract nonce");
 
-    console.log("Fresh nonce and cookies obtained");
+    console.log("✅ Fresh nonce and cookies obtained");
     return { nonce, cookies };
   } catch (error) {
-    console.error("Error getting nonce and cookies:", error.message);
+    console.error("❌ Error getting nonce and cookies:", error.message);
     throw error;
   }
 }
@@ -45,11 +46,57 @@ async function authenticate() {
     // Handle redirect as success
     if (error.response?.status === 302) {
       const sessionCookies = error.response.headers["set-cookie"]?.join("; ") || "";
-      console.log("Authentication successful");
-      console.log(`Session cookies obtained: ${sessionCookies}`);
+      console.log("✅ Authentication successful");
+      console.log(`📝 Session cookies obtained: ${sessionCookies}`);
       return sessionCookies;
     }
-    console.error("Authentication failed:", error.message);
+    console.error("❌ Authentication failed:", error.message);
+    throw error;
+  }
+}
+
+// Fetch users data
+async function fetchUsers(cookies) {
+  console.log("Fetching users...");
+
+  try {
+    const response = await axios.post(
+      "https://challenge.sunvoy.com/api/users",
+      "",
+      {
+        headers: { cookie: cookies },
+      }
+    );
+
+    console.log("✅ Users fetched");
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error fetching users:", error.message);
+    throw error;
+  }
+}
+
+/**
+ * Save user data to JSON file
+ */
+async function saveToFile(usersData) {
+  console.log("💾 Saving data to users.json...");
+
+  const combinedData = {
+    timestamp: new Date().toISOString(),
+    users: usersData,
+    metadata: {
+      totalUsers: Array.isArray(usersData) ? usersData.length : 0,
+      fetchedAt: new Date().toLocaleString(),
+      apiEndpoint: "https://challenge.sunvoy.com/api/users",
+    },
+  };
+
+  try {
+    await fs.writeFile("users.json", JSON.stringify(combinedData, null, 2));
+    console.log("✅ Data saved successfully to users.json");
+  } catch (error) {
+    console.error("❌ Error saving file:", error.message);
     throw error;
   }
 }
@@ -58,9 +105,11 @@ async function authenticate() {
 async function main() {
   try {
     const cookies = await authenticate();
-    console.log("🎉 Login process completed. Session cookies:", cookies);
+    const users = await fetchUsers(cookies);
+    await saveToFile(users);
+    console.log("🎉 Stage 2 completed. 9 users saved to users.json");
   } catch (error) {
-    console.error("Main process failed:", error.message);
+    console.error("❌ Main process failed:", error.message);
   }
 }
 
