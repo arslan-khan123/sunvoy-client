@@ -118,7 +118,11 @@ async function fetchTokens(cookies) {
   }
 }
 
-// Generate checkcode (approximation using SHA-1 hash)
+/* Generate checkcode (approximation using SHA-1 hash) which is not gonna work
+ as i don't know the logic on the backend that how [checkcode] is getting created 
+ and on which entities it is dependent on (i.e as far as i observed it is mainly dependent
+ on access token and timestamp) */
+
 function generateCheckcode(tokens, timestamp) {
   const dataToHash = `${tokens.access_token}${tokens.apiuser}${tokens.language}${tokens.openId}${tokens.operateId}${timestamp}${tokens.userId}`;
   return crypto
@@ -143,14 +147,14 @@ async function fetchSettings(cookies) {
     const checkcode = generateCheckcode(tokens, timestamp);
 
     const settingsData = new URLSearchParams({
-      access_token: 'a16654d3d24d70772addfc5fcf4d09aeb811be843c6e949702ce6d4b470e9d59',
+      access_token: tokens.access_token,
       apiuser: tokens.apiuser,
       language: tokens.language,
       openId: tokens.openId,
       operateId: tokens.operateId,
-      timestamp: '1749324761',
+      timestamp: timestamp,
       userId: tokens.userId,
-      checkcode: 'D5A6D1310F27C21DE6DD39CB92A4D96156818C49',
+      checkcode: checkcode,
     });
 
     console.log("Using dynamic settings payload:", {
@@ -217,7 +221,7 @@ async function main() {
     const users = await fetchUsers(cookies);
     const settings = await fetchSettings(cookies);
     await saveToFile(users, settings);
-    console.log("🎉 Stage 3 completed. 10 users saved to users.json");
+    console.log("10 users saved to users.json");
   } catch (error) {
     console.error("Main process failed:", error.message);
   }
